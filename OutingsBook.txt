@@ -1,0 +1,5 @@
+1. when logged in change login button to logout    avadenga
+2. features : edit , delete , like comment  
+3. image uploads in backend
+4. patch work
+5. 
