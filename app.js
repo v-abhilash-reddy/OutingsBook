@@ -16,7 +16,7 @@ app.use(express.static('public'));
 app.use(expressLayouts);
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser('CookingBlogSecure'));
+app.use(cookieParser('OutingsBookSecure'));
 app.use(session({
   secret: 'OutingsBookSecretSession',
   saveUninitialized: true,

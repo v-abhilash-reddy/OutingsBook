@@ -1,0 +1,59 @@
+<div class="px-4 py-5 my-5 text-center">
+    <h1 class="display-5 fw-bold">Edit Your Outing</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead">Share your amazing trips with thousands of web developers accross the world. Fill our form to get started.</p>
+    </div>
+  </div>
+  
+  <div class="row justify-content-center">
+  
+    <div class="col-8">
+  
+      <form action="/edit/<%= outing._id %>" enctype="multipart/form-data" method="POST">
+      
+        <div class="row g-3">
+  
+          <div class="col-12">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" name="email" id="email" class="form-control" value="<%=outing.email%>">
+          </div>
+  
+          <div class="col-12">
+            <label for="name" class="form-label">Outing Name</label>
+            <input type="text" name="name" id="name" class="form-control" value="<%=outing.name%>" required>
+          </div>
+          
+          <div class="col-12">
+            <label for="description" class="form-label">Description</label>
+            <textarea name="description" id="description" class="form-control" cols="30" rows="4"><%=outing.description%></textarea>
+          </div>
+  
+          <div class="col-12">
+            <label for="category">Select Category</label>
+            <select class="form-select form-control" name="category" aria-label="Category" required>
+                <% Object.keys(category).forEach((cat)=>{ %>
+                  <% if(cat==outing.category) {%>
+                  <option value="<%= cat %>" selected> <%= category[cat] %> </option>
+                  <% } else { %>
+                    <option value="<%= cat %>"> <%= category[cat] %> </option>
+                    <% } %>
+                <% }) %>
+            </select>
+          </div>
+  
+          <div class="col-12">
+            <label for="image">Product Image</label>
+            <input type="file" class="form-control" name="image" accept="image/*">
+            <p>Prev file : <%= outing.image.slice(13) %></p>
+          </div>
+  
+          <div class="col-12">
+            <button type="submit" class="btn btn-success">Submit Outing</button>
+          </div>
+  
+        </div>
+      
+      </form>
+  
+    </div>
+  </div>

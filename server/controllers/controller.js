@@ -1,12 +1,15 @@
 require('../models/database');
-const Category = require('../models/Category');
-const Recipe = require('../models/Recipe');
+// const Category = require('../models/Category');
+const Outing = require('../models/Outing');
 const User = require('../models/userAuth');
 
 /*Auth*/
 exports.login = async(req, res) => {
   try {
-    res.render('login');
+    if(req.isAuthenticated()){
+      return res.redirect('/');
+    }
+    else return res.render('login', {isLoggedIn:req.isAuthenticated()});
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -14,7 +17,10 @@ exports.login = async(req, res) => {
 
 exports.register = async(req, res) => {
   try {
-    res.render('register');
+    if(req.isAuthenticated()){
+      return res.redirect('/');
+    }
+    else return res.render('register', {isLoggedIn:req.isAuthenticated()});
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -27,19 +33,30 @@ exports.register = async(req, res) => {
 exports.homepage = async(req, res) => {
   try {
     const limitNumber = 5;
-    const categories = await Category.find({}).limit(limitNumber);
-    const latest = await Recipe.find({}).sort({_id: -1}).limit(limitNumber);
-    const thai = await Recipe.find({ 'category': 'Thai' }).limit(limitNumber);
-    const american = await Recipe.find({ 'category': 'American' }).limit(limitNumber);
-    const chinese = await Recipe.find({ 'category': 'Chinese' }).limit(limitNumber);
+    // const categories = await Category.find({}).limit(limitNumber);
+    const latest = await Outing.find({}).sort({_id: -1}).limit(limitNumber);
+    const northIndia = await Outing.find({ 'category': 'northIndia' }).limit(limitNumber);
+    const westIndia = await Outing.find({ 'category': 'westIndia' }).limit(limitNumber);
+    const southIndia = await Outing.find({ 'category': 'southIndia' }).limit(limitNumber);
+    const eastIndia = await Outing.find({ 'category': 'eastIndia' }).limit(limitNumber);
 
-    console.log(req.isAuthenticated());
-    const isLoggedIn = req.isAuthenticated();
-    const food = { latest, thai, american, chinese };
+    // console.log(req.isAuthenticated());
+    // const isLoggedIn = req.isAuthenticated();
+    const trips = { latest, northIndia, westIndia, southIndia, eastIndia};
+    console.log("ok from home");
 
-    res.render('index', { title: 'Cooking Blog - Home', categories, food, isLoggedIn } );
+    res.render('index', { title: 'Outings Book - Home', trips, isLoggedIn : req.isAuthenticated() } );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
+  }
+}
+
+/* Abou page */
+exports.aboutpage = async(req, res) => {
+  try{
+    res.status('200').render('about',{isLoggedIn : req.isAuthenticated()});
+  } catch (error) {
+    res.satus(500).send({message: error.message || "Error Occured" });
   }
 }
 
@@ -47,13 +64,13 @@ exports.homepage = async(req, res) => {
  * GET /categories
  * Categories 
 */
-exports.exploreCategories = async(req, res) => {
+exports.exploreOutings = async(req, res) => {
   try {
     const limitNumber = 20;
-    const categories = await Category.find({}).limit(limitNumber);
-    res.render('categories', { title: 'Outings Book - Categories', categories } );
+    const Outings = await Outing.find({}).limit(limitNumber);
+    res.render('Outings', { title: 'Outings Book - Categories', Outings, isLoggedIn : req.isAuthenticated() } );
   } catch (error) {
-    res.satus(500).send({message: error.message || "Error Occured" });
+    res.status(500).send({message: error.message || "Error Occured" });
   }
 } 
 
@@ -66,28 +83,28 @@ exports.exploreCategoriesById = async(req, res) => {
   try {
     let categoryId = req.params.id;
     const limitNumber = 20;
-    const categoryById = await Recipe.find({ 'category': categoryId }).limit(limitNumber);
-    res.render('categories', { title: 'Outings Book - Categories', categoryById } );
+    const categoryById = await Outing.find({ 'category': categoryId }).limit(limitNumber);
+    res.render('categories', { title: 'Outings Book - Categories', categoryById , isLoggedIn : req.isAuthenticated()} );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
 } 
  
 /**
- * GET /recipe/:id
- * Recipe 
+ * GET /outing/:id
+ * Outing 
 */
-exports.exploreRecipe = async(req, res) => {
+exports.exploreOuting = async(req, res) => {
   try {
     if(!req.isAuthenticated())
         return res.json({ msg : "Plz login"});
     const userId = req.user._id;
-    let recipeId = req.params.id;
-    const recipe = await Recipe.findById(recipeId);
+    let outingId = req.params.id;
+    const outing = await Outing.findById(outingId);
     let isAuthor = false;
-    console.log(userId,recipe.userId);
-    if(userId == recipe.userId) isAuthor = true;
-    res.render('recipe', { title: 'Cooking Blog - Recipe', recipe ,isAuthor,isLoggedIn : true} );
+    console.log(userId, outing.userId);
+    if(userId == outing.userId) isAuthor = true;
+    res.render('outing', { title: 'Cooking Blog - Outing', outing ,isAuthor, isLoggedIn : req.isAuthenticated()} );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -98,11 +115,11 @@ exports.exploreRecipe = async(req, res) => {
  * POST /search
  * Search 
 */
-exports.searchRecipe = async(req, res) => {
+exports.searchOuting = async(req, res) => {
   try {
     let searchTerm = req.body.searchTerm;
-    let recipe = await Recipe.find( { $text: { $search: searchTerm, $diacriticSensitive: true } });
-    res.render('search', { title: 'Cooking Blog - Search', recipe } );
+    let outing = await Outing.find( { $text: { $search: searchTerm, $diacriticSensitive: true } });
+    res.render('search', { title: 'Cooking Blog - Search', outing, isLoggedIn : req.isAuthenticated() } );
   } catch (error) {
     res.satus(500).send({message: error.message || "Error Occured" });
   }
@@ -116,8 +133,8 @@ exports.searchRecipe = async(req, res) => {
 exports.exploreLatest = async(req, res) => {
   try {
     const limitNumber = 20;
-    const recipe = await Recipe.find({}).sort({ _id: -1 }).limit(limitNumber);
-    res.render('explore-latest', { title: 'Cooking Blog - Explore Latest', recipe } );
+    const outing = await Outing.find({}).sort({ _id: -1 }).limit(limitNumber);
+    res.render('explore-latest', { title: 'Cooking Blog - Explore Latest', outing , isLoggedIn : req.isAuthenticated()} );
   } catch (error) {
     res.satus(500).send({message: error.message || "Error Occured" });
   }
@@ -131,10 +148,10 @@ exports.exploreLatest = async(req, res) => {
 */
 exports.exploreRandom = async(req, res) => {
   try {
-    let count = await Recipe.find().countDocuments();
+    let count = await Outing.find().countDocuments();
     let random = Math.floor(Math.random() * count);
-    let recipe = await Recipe.findOne().skip(random).exec();
-    res.render('explore-random', { title: 'Cooking Blog - Explore Latest', recipe } );
+    let outing = await Outing.findOne().skip(random).exec();
+    res.render('explore-random', { title: 'Cooking Blog - Explore Latest', outing, isLoggedIn : req.isAuthenticated() } );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -142,10 +159,10 @@ exports.exploreRandom = async(req, res) => {
 
 
 /**
- * GET /submit-recipe
- * Submit Recipe
+ * GET /submit-outing
+ * Submit Outing
 */
-exports.submitRecipe = async(req, res) => {
+exports.submitOuting = async(req, res) => {
     if(!req.isAuthenticated()){
         // req.flash('error_message', 'Please log in to access the requested page');
         // if(error_message){
@@ -156,15 +173,14 @@ exports.submitRecipe = async(req, res) => {
     }
   const infoErrorsObj = req.flash('infoErrors');
   const infoSubmitObj = req.flash('infoSubmit');
-  const isLoggedIn = req.isAuthenticated();
-  res.render('submit-recipe', { title: 'Cooking Blog - Submit Recipe', infoErrorsObj, infoSubmitObj , isLoggedIn } );
+  res.render('submit-outing', { title: 'Cooking Blog - Submit Outing', infoErrorsObj, infoSubmitObj , isLoggedIn : req.isAuthenticated() } );
 }
 
 /**
- * POST /submit-recipe
- * Submit Recipe
+ * POST /submit-outing
+ * Submit Outing
 */
-exports.submitRecipeOnPost = async(req, res) => {
+exports.submitOutingOnPost = async(req, res) => {
   try {
 
     let imageUploadFile;
@@ -185,179 +201,136 @@ exports.submitRecipeOnPost = async(req, res) => {
       })
 
     }
-
-    const newRecipe = new Recipe({
+    console.log(req.user._id);
+    const newOuting = new Outing({
       userId:req.user._id,
       name: req.body.name,
       description: req.body.description,
       email: req.body.email,
-      ingredients: req.body.ingredients,
       category: req.body.category,
       image: newImageName
     });
+      // ingredients: req.body.ingredients,
     
-    await newRecipe.save();
+    await newOuting.save();
 
-    req.flash('infoSubmit', 'Recipe has been added.')
-    res.redirect('/submit-recipe');
+    req.flash('infoSubmit', 'Outing has been added.')
+    res.redirect('/submit-outing');
   } catch (error) {
     // res.json(error);
     req.flash('infoErrors', error);
-    res.redirect('/submit-recipe');
+    res.redirect('/submit-outing');
   }
 }
 
-exports.myBlogs = async(req,res) => {
+exports.myPages = async(req,res) => {
   try{
     if(!req.isAuthenticated()){
         return res.json({msg:"pls login"});
     }
+    // console.log(req.user);
     const userId = req.user._id;
-    const recipe = await Recipe.find({userId});
+    const outing = await Outing.find({userId});
     console.log(userId);
-    const isLoggedIn = req.isAuthenticated();
-    return res.status(200).render('my-blogs', {recipe, isLoggedIn});
+    return res.status(200).render('my-blogs', {outing, isLoggedIn : req.isAuthenticated()});
   }
   catch(err){
     res.status(400).json(err);
   }
-  // res.json({userId});
 }
 
-// app.get("/edit/:id",);
-
-// exports.editRecipe =  (req, res) => {
-//   const userId = req.params.id;
-//   // console.log("edit", userId);
-//   UserInfo.findById(userId, (err, userinfo)=>{
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       if (userinfo) {
-//         // console.log("user ", userinfo);
-//         res.render("edit", { userinfo });
-//       }
-//     }
-//   })
-// }
-
-// app.post("/edit/:id", function (req, res) {
-//   // const submittedSecret = req.body.secret;
-//   const id = req.params.id;
-  
-//   UserInfo.findByIdAndUpdate(id, {websiteURL:req.body.websiteURL,
-//     websiteName:req.body.websiteName},{
-//       new: true,
-//       upsert: true
-//     }, (err)=>{
-//       if(err){
-//         console.log(err);
-//       }
-//       else {
-//         res.redirect('/secrets');
-//       }
-//     });
-// });
 
 
+exports.editpage = async(req,res) => {
 
+  try {
+    if(!req.isAuthenticated()){
+      return res.json({msg:"pls login"});
+    }
+    // console.log(req.user);
+    const userId = req.user._id;
+    const outingId = req.params.id;
+    const outing = await Outing.findById({outingId});
+    if(outing.userId !== userId){
+      return res.status(404).json({'msg':" You can only edit your posts."})
+    }
+    console.log(userId, outingId);
+    return res.status(200).render('edit-outing', {outing, isLoggedIn : req.isAuthenticated()});
+    
+  } catch (error) {
+    res.status(404).json({"msg":"error occured"});
+  }
+}
 
-// Delete Recipe
-// async function deleteRecipe(){
-//   try {
-//     await Recipe.deleteOne({ name: 'New Recipe From Form' });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-// deleteRecipe();
+exports.updatepage = async(req,res) => {
 
+  try {
 
-// Update Recipe
-// async function updateRecipe(){
-//   try {
-//     const res = await Recipe.updateOne({ name: 'New Recipe' }, { name: 'New Recipe Updated' });
-//     res.n; // Number of documents matched
-//     res.nModified; // Number of documents modified
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
-// updateRecipe();
+    let imageUploadFile;
+    let uploadPath;
+    let newImageName;
 
+    if(!req.files || Object.keys(req.files).length === 0){
+      console.log('No Files where uploaded.');
+    } else {
 
-/**
- * Dummy Data Example 
-*/
+      imageUploadFile = req.files.image;
+      newImageName = Date.now() + imageUploadFile.name;
 
-// async function insertDymmyCategoryData(){
-//   try {
-//     await Category.insertMany([
-//       {
-//         "name": "Thai",
-//         "image": "thai-food.jpg"
-//       },
-//       {
-//         "name": "American",
-//         "image": "american-food.jpg"
-//       }, 
-//       {
-//         "name": "Chinese",
-//         "image": "chinese-food.jpg"
-//       },
-//       {
-//         "name": "Mexican",
-//         "image": "mexican-food.jpg"
-//       }, 
-//       {
-//         "name": "Indian",
-//         "image": "indian-food.jpg"
-//       },
-//       {
-//         "name": "Spanish",
-//         "image": "spanish-food.jpg"
-//       }
-//     ]);
-//   } catch (error) {
-//     console.log('err', + error)
-//   }
-// }
+      uploadPath = require('path').resolve('./') + '/public/uploads/' + newImageName;
 
-// insertDymmyCategoryData();
+      imageUploadFile.mv(uploadPath, function(err){
+        if(err) return res.satus(500).send(err);
+      })
 
+    }
+    console.log(req.user._id);
+    const newOuting = {
+      userId:req.user._id,
+      name: req.body.name,
+      description: req.body.description,
+      email: req.body.email,
+      category: req.body.category,
+      image: newImageName
+    };
 
-// async function insertDymmyRecipeData(){
-//   try {
-//     await Recipe.insertMany([
-//       { 
-//         "name": "Recipe Name Goes Here",
-//         "description": `Recipe Description Goes Here`,
-//         "email": "recipeemail@raddy.co.uk",
-//         "ingredients": [
-//           "1 level teaspoon baking powder",
-//           "1 level teaspoon cayenne pepper",
-//           "1 level teaspoon hot smoked paprika",
-//         ],
-//         "category": "American", 
-//         "image": "southern-friend-chicken.jpg"
-//       },
-//       { 
-//         "name": "Recipe Name Goes Here",
-//         "description": `Recipe Description Goes Here`,
-//         "email": "recipeemail@raddy.co.uk",
-//         "ingredients": [
-//           "1 level teaspoon baking powder",
-//           "1 level teaspoon cayenne pepper",
-//           "1 level teaspoon hot smoked paprika",
-//         ],
-//         "category": "American", 
-//         "image": "southern-friend-chicken.jpg"
-//       },
-//     ]);
-//   } catch (error) {
-//     console.log('err', + error)
-//   }
-// }
+    const outingId = req.params.id;
+    const outing = Outing.findByIdAndUpdate(outingId, newOuting,
+      (err)=>{
+        if(err){
+          console.log(err);
+          return res.status(404).json({"msg":"error occured"});
+        }
+      }
+    );
+    res.redirect(`/outing/${outingId}`);
+  } catch (error) {
+    // res.json(error);
+    req.flash('infoErrors', error);
+    res.redirect(`/outing/${outingId}`);
+  }
+}
 
-// insertDymmyRecipeData();
+exports.deletepage = async(req, res) => {
+
+  try {
+    if(!req.isAuthenticated()){
+      return res.json({msg:"pls login"});
+    }
+    // console.log(req.user);
+    const userId = req.user._id;
+    const outingId = req.params.id;
+    const outing = await Outing.findById({outingId});
+    if(outing.userId !== userId){
+      return res.status(404).json({'msg':" You can only delete your posts."})
+    }
+
+    const deleteOuting = await Outing.findByIdAndDelete(outingId);
+    console.log(userId, outingId);
+    return res.status(200).redirect('myPages');
+    
+  } catch (error) {
+    res.status(404).json({"msg":"error occured"});
+  }
+};
 

@@ -11,7 +11,7 @@ router.use(passport.initialize());
 router.use(passport.session());
 
 const User = require('../models/userAuth');
-const Controller = require('../controllers/controller');
+const Controller = require('../controllers/allController');
 // require('../../')
 require('dotenv').config({path:__dirname + '../../.env'});
 // console.log(process.env.CLIENT_ID);
@@ -20,16 +20,21 @@ require('dotenv').config({path:__dirname + '../../.env'});
  * App Routes 
 */
 router.get('/', Controller.homepage);
-router.get('/recipe/:id', Controller.exploreRecipe );
-router.get('/categories', Controller.exploreCategories);
+router.get('/about', Controller.aboutpage);
+router.get('/outing/:id', Controller.exploreOuting );
+router.get('/outings', Controller.exploreOutings);
 router.get('/categories/:id', Controller.exploreCategoriesById);
-router.post('/search', Controller.searchRecipe);
+router.post('/search', Controller.searchOuting);
 router.get('/explore-latest', Controller.exploreLatest);
 router.get('/explore-random', Controller.exploreRandom);
-router.get('/submit-recipe', Controller.submitRecipe);
-router.post('/submit-recipe', Controller.submitRecipeOnPost);
+router.get('/submit-outing', Controller.submitOuting);
+router.post('/submit-outing', Controller.submitOutingOnPost);
 
-router.get("/myblogs",Controller.myBlogs);
+router.get("/myPages",Controller.myPages);
+router.get("/edit/:id", Controller.editpage);
+router.post("/edit/:id", Controller.updatepage);
+router.get("/delete/:id", Controller.deletepage);
+
 
 /* Auth Routes */
 passport.use(User.createStrategy());
@@ -53,9 +58,9 @@ passport.use(
       userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo",
     },
     function (accessToken, refreshToken, profile, cb) {
-      console.log(profile);
+      // console.log(profile);
 
-      User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      User.findOrCreate({ googleId: profile.id, username:profile.displayName}, function (err, user) {
         return cb(err, user);
       });
     }
@@ -64,7 +69,9 @@ passport.use(
   
 router.get(
   "/auth/google",
-  passport.authenticate("google", { scope: ["profile"] })
+  passport.authenticate("google", { scope: ["profile"] }, function(req, res){
+    // console.log("ok");
+  })
 );
 
 router.get(
@@ -94,7 +101,7 @@ router.get("/logout", function (req, res) {
 
 router.post("/register", function (req, res) {
     User.register(
-      { username: req.body.username },
+      { email:req.body.email, username: req.body.username },
       req.body.password,
       function (err, user) {
         if (err) {
@@ -115,7 +122,7 @@ router.post("/login", function (req, res) {
       username: req.body.username,
       password: req.body.password,
     });
-    console.log(req);
+    // console.log(req);
   
     req.login(user, function (err) {
       if (err) {

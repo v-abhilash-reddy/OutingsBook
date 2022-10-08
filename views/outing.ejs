@@ -1,0 +1,39 @@
+<% if(outing != null ) { %>
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/">Home</a></li>
+      <li class="breadcrumb-item active" aria-current="page"><%- outing.name %></li>
+    </ol>
+  </nav>
+
+
+  <div class="row">
+
+    <div class="col-12 col-md-4">
+      <img src="/uploads/<%- outing.image %>" class="img-fluid sticky-top" style="top: 20px;" alt="<%- outing.name %>" loading="lazy">
+    </div>
+
+    <div class="col-12 col-md-8">
+      <div class="row">
+        <div class="col-12"><h1><%- outing.name %></h1></div>
+        <div class="col-12 mb-4"><i class="bi bi-tag"></i> <%- outing.category %></div>
+        <div class="col-12" style="white-space: pre-line;">
+          <h4>Description</h4>
+          <%- outing.description %>
+        </div>
+      </div>
+
+      <div class="row pt-4">
+        <div class="col-12">
+          <% if(isAuthor) { %>
+            <a href="/edit/<%=outing._id%>" class="btn btn-primary">Edit</a>
+            <a href="/delete/<%=outing._id%>" class="btn btn-danger">Delete</a>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } else { %>
+  <p>No item found.</p>
+<% } %>
