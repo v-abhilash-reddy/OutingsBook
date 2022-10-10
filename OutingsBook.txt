@@ -1,4 +1,6 @@
 ToDO..,
 
-1. like comment  
-2. res.json to res.redirect 
+1. like comment
+2. res.json to res.redirect to home with appropriate flash
+3. About page flexbox
+4. like comment styling

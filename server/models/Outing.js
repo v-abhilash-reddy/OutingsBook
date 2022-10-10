@@ -26,6 +26,14 @@ const outingSchema = new mongoose.Schema({
     type: String,
     required: 'This field is required.'
   },
+  likes : {
+    type: Object,
+    required: true
+  },
+  comments : {
+    type : Array,
+    required : true
+  },
   userId: {
     type: String,
     required:true
