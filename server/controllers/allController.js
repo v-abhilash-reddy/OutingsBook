@@ -99,10 +99,12 @@ exports.exploreOuting = async(req, res) => {
     const userId = req.isAuthenticated() ? req.user._id : null;
     let outingId = req.params.id;
     const outing = await Outing.findById(outingId);
-    let isAuthor = false;
+    let isAuthor = false,likes = Object.keys(outing.likes).length;
+    let isLiked  = outing.likes.hasOwnProperty(userId);
+    const comments = outing.comments;
     console.log(userId, outing.userId);
     if(userId == outing.userId) isAuthor = true;
-    res.render('outing', { title: 'Outings Book - Outing', outing ,isAuthor, isLoggedIn : req.isAuthenticated()} );
+    res.render('outing', { title: 'Outings Book - Outing', outing ,isAuthor, isLoggedIn : req.isAuthenticated(),likes,isLiked,comments} );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -338,3 +340,52 @@ exports.deletepage = async(req, res) => {
   }
 };
 
+
+exports.exploreLike = async(req,res) =>{
+  try{
+    if(!req.isAuthenticated())
+      return res.json({ msg : "Plz login"});
+    const userId = req.user._id;
+    let outingId = req.params.id;
+    const outing  = await Outing.findById(outingId);
+    const outingLikesObj = {...outing.likes};
+    if(outingLikesObj.hasOwnProperty(userId))
+       delete outingLikesObj[userId];
+    else
+      outingLikesObj[userId] = 1;
+    outing.likes = outingLikesObj;
+    await outing.save();
+    res.redirect(`/outing/${outingId}`);
+  }
+  catch(err) {
+    console.log(err);
+  }
+
+}
+
+exports.exploreComment = async(req,res) =>{
+  try{
+    if(!req.isAuthenticated())
+      return res.json({ msg : "Plz login"});
+    const userId = req.user._id;
+    let outingId = req.params.id;
+    if(!req.body.commentField.length) 
+      return res.json({ msg : "comment should not be empty"});
+    const user = await User.findById(userId);
+    const outing  = await Outing.findById(outingId);
+    
+    const commentsArr = [...outing.comments];
+    console.log("username",user.username);
+    commentsArr.push({
+      userName : user.username,
+      comment : req.body.commentField
+    })
+    outing.comments = commentsArr;
+    await outing.save();
+    res.redirect(`/outing/${outingId}`);
+  }
+  catch(err) {
+    console.log(err);
+  }
+
+}
