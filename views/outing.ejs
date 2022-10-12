@@ -32,18 +32,29 @@
           <% } %>
         </div>
       </div>
-      <% if(isLoggedIn) { %><div class="col-md-3 text-end">
+      <div class="col-md-3">
         <form method="POST" action="/outing/like/<%= outing._id %>">   
-          <button class="btn btn-info"><% if(isLiked) { %>
-            Liked
+          <% if(isLoggedIn){ %>
+            <button class="btn btn-info"><% if(isLiked) { %>
+              Liked
+            <% } else { %>
+              <a>Like</a>
+              <% } %> </button>
           <% } else { %>
-            <a>Like</a>
-            <% } %> </button>
+            <button class="btn btn-info" disabled ><% if(isLiked) { %>
+              Liked
+            <% } else { %>
+              <a>Like</a>
+              <% } %> </button>
+          <% } %>
         </form>
-        <p><%= likes %></p>
       </div> 
+      <div>
+        <p>Liked by <%= likes %> people</p>
+      </div>
     </div>
-    <div class="col-md-3 text-end">
+    <% if(isLoggedIn) { %>
+    <div class="col-md-3 text-end" style="display: flex;">
       <form method="POST" action="/outing/comment/<%= outing._id %>">   
         <input
         type="text"
@@ -52,17 +63,21 @@
         placeholder="Write a comment...."
         aria-label="Search"
       />
-      <button type="submit" class="btn btn-dark">Post</button>
+      <button  type="submit" class="btn btn-dark">Post</button>
       </form>
     </div>
-    <% comments.forEach(function(comment, index){ %>
-        <div class="category__img category__img--small shadow" style="display: flex;flex-direction: column;">
-          <div class="pt-1"><%= comment.userName %></div>
-          <div class="pt-2"><%= comment.comment %></div>
-        </div>
-      <% }) %>
     <% } %>
-
+    <% comments.forEach(function(comment, index){ %>
+      <div class="category__img category__img--small shadow" style="display: flex;flex-direction: column;">
+        <div class="pt-1"><%= comment.userName %></div>
+        <div class="pt-2"><%= comment.comment %></div>
+      </div>
+      <% if(comment.userId == userId){ %>
+        <form method="POST" action="/outing/comment/delete/<%= outing._id %>/<%= index %>"> 
+        <button type="submit" class="btn btn-dark">delete</button>
+      </form>
+      <% } %>
+    <% }) %>
   </div>
 <% } else { %>
   <p>No item found.</p>

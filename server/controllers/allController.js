@@ -104,7 +104,7 @@ exports.exploreOuting = async(req, res) => {
     const comments = outing.comments;
     console.log(userId, outing.userId);
     if(userId == outing.userId) isAuthor = true;
-    res.render('outing', { title: 'Outings Book - Outing', outing ,isAuthor, isLoggedIn : req.isAuthenticated(),likes,isLiked,comments} );
+    res.render('outing', { title: 'Outings Book - Outing', outing ,isAuthor, isLoggedIn : req.isAuthenticated(),likes,isLiked,comments,userId : outing.userId} );
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });
   }
@@ -373,12 +373,12 @@ exports.exploreComment = async(req,res) =>{
       return res.json({ msg : "comment should not be empty"});
     const user = await User.findById(userId);
     const outing  = await Outing.findById(outingId);
-    
     const commentsArr = [...outing.comments];
     console.log("username",user.username);
     commentsArr.push({
       userName : user.username,
-      comment : req.body.commentField
+      comment : req.body.commentField,
+      userId : outing.userId
     })
     outing.comments = commentsArr;
     await outing.save();
@@ -387,5 +387,27 @@ exports.exploreComment = async(req,res) =>{
   catch(err) {
     console.log(err);
   }
+
+}
+
+exports.exploreDeleteComment = async(req,res) =>{
+  try{
+    if(!req.isAuthenticated())
+      return res.json({ msg : "Plz login"});
+    // const userId = req.user._id;
+    let outingId = req.params.id;
+    console.log(req.body);
+    const outing  = await Outing.findById(outingId);
+    const commentsArr = [...outing.comments];
+    // console.log("username",user.username);
+    commentsArr.splice(req.params.index, 1);
+    outing.comments = commentsArr;
+    await outing.save();
+    res.redirect(`/outing/${outingId}`);
+  }
+  catch(err) {
+    console.log(err);
+  }
+
 
 }
