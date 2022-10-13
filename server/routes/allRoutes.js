@@ -24,6 +24,7 @@ router.get('/about', Controller.aboutpage);
 router.get('/outing/:id', Controller.exploreOuting );
 router.post('/outing/like/:id', Controller.exploreLike);
 router.post('/outing/comment/:id', Controller.exploreComment);
+router.post('/outing/comment/delete/:id/:index',Controller.exploreDeleteComment);
 router.get('/outings', Controller.exploreOutings);
 router.get('/categories/:id', Controller.exploreCategoriesById);
 router.post('/search', Controller.searchOuting);
