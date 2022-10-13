@@ -35,12 +35,12 @@
       <% if(isLoggedIn) { %><div class="col-md-3 text-end">
         <form method="POST" action="/outing/like/<%= outing._id %>">   
           <button class="btn btn-info"><% if(isLiked) { %>
-            Liked
+            unLike
           <% } else { %>
             <a>Like</a>
             <% } %> </button>
         </form>
-        <p><%= likes %></p>
+        <p>Liked by <%= likes %> people</p>
       </div> 
     </div>
     <div class="col-md-3 text-end">

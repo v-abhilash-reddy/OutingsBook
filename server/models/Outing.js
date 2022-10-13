@@ -28,11 +28,11 @@ const outingSchema = new mongoose.Schema({
   },
   likes : {
     type: Object,
-    required: true
+    default: {}
   },
   comments : {
     type : Array,
-    required : true
+    default: []
   },
   userId: {
     type: String,
