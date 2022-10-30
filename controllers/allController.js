@@ -112,7 +112,7 @@ exports.submitOuting = async(req, res) => {
   try{
     if(!req.isAuthenticated()){
         req.flash('LoggingIn', 'Please login / signup to access the requested page');
-        return res.render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
+        return res.status(404).render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
     }
     const infoErrorsObj = req.flash('infoErrors');
     const infoSubmitObj = req.flash('infoSubmit');
@@ -140,7 +140,7 @@ exports.submitOutingOnPost = async(req, res) => {
       uploadPath = require('path').resolve('./') + '/public/uploads/' + newImageName;
 
       imageUploadFile.mv(uploadPath, function(err){
-        if(err) return res.satus(500).send(err);
+        if(err) return res.status(500).send(err);
       })
 
     }
@@ -168,7 +168,7 @@ exports.myPages = async(req,res) => {
   try{
     if(!req.isAuthenticated()){
       req.flash('LoggingIn', 'Please login / signup to access the requested page');
-      return res.render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
+      return res.ststus(404).render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
     }
     const userId = req.user._id;
     const outing = await Outing.find({userId});
@@ -186,7 +186,7 @@ exports.editpage = async(req,res) => {
   try {
     if(!req.isAuthenticated()){
       req.flash('LoggingIn', 'Please login / signup to access the requested page');
-      return res.render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
+      return res.status(404).render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
     }
 
     const userId = req.user._id;
@@ -209,9 +209,16 @@ exports.updatepage = async(req,res) => {
     let imageUploadFile;
     let uploadPath;
     let newImageName;
+    let newOuting;
 
     if(!req.files || Object.keys(req.files).length === 0){
-      console.log('No Files where uploaded.');
+      newOuting = {
+        userId:req.user._id,
+        name: req.body.name,
+        description: req.body.description,
+        email: req.body.email,
+        category: req.body.category
+      };
     } else {
 
       imageUploadFile = req.files.image;
@@ -221,28 +228,20 @@ exports.updatepage = async(req,res) => {
 
       imageUploadFile.mv(uploadPath, function(err){
         if(err) return res.status(500).send(err);
-      })
+      });
 
+      newOuting = {
+        userId:req.user._id,
+        name: req.body.name,
+        description: req.body.description,
+        email: req.body.email,
+        category: req.body.category,
+        image: newImageName
+      };
     }
 
-    const newOuting = {
-      userId:req.user._id,
-      name: req.body.name,
-      description: req.body.description,
-      email: req.body.email,
-      category: req.body.category,
-      image: newImageName
-    };
-
     const outingId = req.params.id;
-    const outing = await Outing.findByIdAndUpdate(outingId, newOuting,
-      (err)=>{
-        if(err){
-          console.log(err);
-          return res.status(500).json({message: error.message || "Error Occured" });
-        }
-      }
-    );
+    const outing = await Outing.findByIdAndUpdate(outingId, newOuting);
     res.status(303).redirect(`/outing/${outingId}`);
   } catch (error) {
     res.status(500).send({message: error.message || "Error Occured" });

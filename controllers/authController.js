@@ -29,6 +29,10 @@ exports.loginOnPost = async function (req, res) {
         passport.authenticate("local")(req, res, function () {
             res.status(303).redirect("/");
         });
+
+        // req.flash('LoggingIn', 'Please sign up before logging in.');
+        // return res.status(404).render('login' , {LoggingIn : req.flash('LoggingIn'), isLoggedIn:false});
+
       }
     });
   } catch (error) {
