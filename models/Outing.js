@@ -13,10 +13,6 @@ const outingSchema = new mongoose.Schema({
     type: String,
     required: 'This field is required.'
   },
-  // ingredients: {
-  //   type: Array,
-  //   required: 'This field is required.'
-  // },
   category: {
     type: String,
     enum: ['northIndia', 'westIndia', 'southIndia', 'eastIndia'],
@@ -41,7 +37,5 @@ const outingSchema = new mongoose.Schema({
 });
 
 outingSchema.index({ name: 'text', description: 'text' });
-// WildCard Indexing
-//recipeSchema.index({ "$**" : 'text' });
 
 module.exports = mongoose.model('Outing', outingSchema);

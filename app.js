@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const fileUpload = require('express-fileupload');
@@ -8,8 +9,6 @@ const bodyParser = require("body-parser");
 
 const app = express();
 const port = process.env.PORT || 5000;
-
-require('dotenv').config();
 
 app.use(express.urlencoded( { extended: true } ));
 app.use(express.static('public'));
@@ -28,7 +27,7 @@ app.use(fileUpload());
 app.set('layout', './layouts/main');
 app.set('view engine', 'ejs');
 
-const routes = require('./server/routes/allRoutes.js')
+const routes = require('./routes/allRoutes.js');
 app.use('/', routes);
 
 app.listen(port, ()=> console.log(`Listening to port ${port}`));
