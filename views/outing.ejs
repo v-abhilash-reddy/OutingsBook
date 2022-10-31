@@ -8,13 +8,13 @@
   </nav>
 
 
-  <div class="row">
+  <div class="row" style="margin-bottom: 10%;">
 
-    <div class="col-12 col-md-4">
-      <img src="/uploads/<%- outing.image %>" class="img-fluid sticky-top" style="top: 20px;" alt="<%- outing.name %>" loading="lazy">
+    <div class="col-9 col-md-5">
+      <img src="/uploads/<%- outing.image %>" class="img-fluid" style="top: 20px;" alt="<%- outing.name %>" loading="lazy">
     </div>
 
-    <div class="col-12 col-md-8">
+    <div class="col-10 col-md-5">
       <div class="row">
         <div class="col-12"><h1><%- outing.name %></h1></div>
         <div class="col-12 mb-4"><i class="bi bi-tag"></i> <%- outing.category %></div>
@@ -32,7 +32,8 @@
           <% } %>
         </div>
       </div>
-      <div class="col-md-3">
+      <!-- <br> -->
+      <div class="mt-3 col-md-3">
         <form method="POST" action="/outing/like/<%= outing._id %>">   
           <% if(isLoggedIn){ %>
             <button class="btn btn-info"><% if(isLiked) { %>
@@ -54,28 +55,43 @@
       </div>
     </div>
     <% if(isLoggedIn) { %>
-    <div class="col-md-3 text-end" style="display: flex;">
-      <form method="POST" action="/outing/comment/<%= outing._id %>">   
+    <div class="col-md-6 text-end offset-md-2" style="margin-top: 5%;">
+      <form method="POST" style="display: flex; flex-direction:row" action="/outing/comment/<%= outing._id %>">   
         <input
         type="text"
         name="commentField"
         class="form-control"
         placeholder="Write a comment...."
         aria-label="Search"
+        required
       />
       <button  type="submit" class="btn btn-dark">Post</button>
       </form>
     </div>
-    <% } %>
-    <% comments.forEach(function(comment, index){ %>
-      <div class="category__img category__img--small shadow" style="display: flex;flex-direction: column;">
-        <div class="pt-1"><%= comment.userName %></div>
-        <div class="pt-2"><%= comment.comment %></div>
+    <% } else { %>
+      <div class="col-md-3 text-end " style="display: flex;">
+          Please login to add comments .
       </div>
-      <% if(comment.userId == userId){ %>
+    <% } %>
+    <% if(isLoggedIn && comments && comments.length){ %>
+      <h2 class = "mt-4 offset-md-2">Comments</h2>
+    <% } %>
+    <hr class="offset-md-2 w-50" >
+    <% comments.forEach(function(comment, index){ %>
+ 
+      <div class="mt-2 col-md-5 offset-md-2" style="display: flex;flex-direction: row;">
+        <div class="col-md-5" style="display: flex;flex-direction: column;">
+          <div class="pt-1" style="font-weight: bold;"><%= comment.userName %></div>
+          <div class="pt-2 font-weight-normal"><%= comment.comment %></div>
+        </div>
+      <% if(isLoggedIn && comment.userId == userId){ %>
         <form method="POST" action="/outing/comment/delete/<%= outing._id %>/<%= index %>"> 
-        <button type="submit" class="btn btn-dark">delete</button>
-      </form>
+          <button type="submit" style="border:none;background: none" >
+            <img src="/images/icons8-trash-16.png" alt="delete">
+          </button>
+        </form>
+      </div>
+
       <% } %>
     <% }) %>
   </div>
